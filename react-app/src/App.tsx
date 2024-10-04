@@ -1,34 +1,29 @@
-import { useState } from "react";
-import Alert from "./components/Alert";
 import Button from "./components/Button";
-import ListGroup from "./components/ListGroup/ListGroup";
+import Like from "./components/Like/Like";
+import ListGroup from "./components/ListGroup";
+import { FaCalendar } from "react-icons/fa";
 
 function App() {
-  // let items = ["New York", "San Francisco", "Tokyo", "Lisbon", "Madrid"];
-
-  // const handleSelectItem = (item: string) => {
-  //   console.log(item);
-  // };
-
-  // return (
-  //   <div>
-  //     <ListGroup
-  //       items={items}
-  //       heading="Cities"
-  //       onSelectItem={handleSelectItem}
-  //     />
-  //   </div>
-  // );
-  const [alertVisible, setAlertVisibility] = useState(false);
+  const items = ["New York", "Los Angeles", "San Francisco"];
 
   return (
     <div>
-      {alertVisible && (
-        <Alert onClose={() => setAlertVisibility(false)}>
-          My <b>Alert</b>
-        </Alert>
-      )}
-      <Button onClick={() => setAlertVisibility(true)}>My button</Button>
+      <Like onClick={() => console.log("clicked")}></Like>
+      <Button
+        color="primary"
+        onClick={() => {
+          console.log("Hello");
+        }}
+      >
+        My Button
+      </Button>
+      <br></br>
+      <FaCalendar color="red" size="40"></FaCalendar>
+      <ListGroup
+        heading="Cities"
+        items={items}
+        onSelectItem={() => {}}
+      ></ListGroup>
     </div>
   );
 }
