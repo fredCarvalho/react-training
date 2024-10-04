@@ -1,0 +1,23 @@
+Create a new project with vite
+
+> npm create vite@4.1.0
+
+install dependencies after project is created (inside the project)
+
+> npm install
+
+Run dev server
+
+> npm run dev
+
+
+Creating a React Component
+> Create file inside src with name of component (Main.tsx)
+
+Install Bootstrap
+
+> npm i bootstrap@5.2.3
+
+
+ES7+ Plugin for creating components
+On the text editor, start by typing: rafce
