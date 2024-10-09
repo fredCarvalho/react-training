@@ -1,50 +1,93 @@
-import { useState } from "react";
-import ExpenseList from "./components/expense-tracker/components/ExpenseList";
-import Form from "./components/Form";
-import Form2 from "./components/Form2";
-import Form3 from "./components/Form3";
-import "./index.css";
-import ExpenseFilter from "./components/expense-tracker/components/ExpenseFilter";
-import ExpenseForm from "./components/expense-tracker/components/ExpenseForm";
-import categories from "./components/expense-tracker/categories";
+import { useEffect, useState } from "react";
+import { CanceledError } from "./services/api-client";
+import { User } from "./services/user-service";
+import userService from "./services/user-service";
+import useUsers from "./hooks/useUsers";
 
 function App() {
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [expenses, setExpenses] = useState([
-    { id: 1, description: "aaa", amount: 10, category: "Utilities" },
-    { id: 2, description: "bbb", amount: 20, category: "Utilities" },
-    { id: 3, description: "ccc", amount: 30, category: "Entertainment" },
-    { id: 4, description: "ddd", amount: 40, category: "Utilities" },
-    { id: 5, description: "eee", amount: 50, category: "Groceries" },
-  ]);
+  const { users, error, isLoading, setUsers, setError } = useUsers();
 
-  const visibleExpenses = selectedCategory
-    ? expenses.filter((e) => e.category === selectedCategory)
-    : expenses;
+  // useEffect(() => {
+  //   const fetchUsers = async () => {
+  //     try {
+  //       const res = await axios.get<User[]>(
+  //         "https://jsonplaceholder.typicode.com/users"
+  //       );
+  //       setUsers(res.data);
+  //     } catch (error) {
+  //       setError((error as AxiosError).message);
+  //     }
+  //   };
+  //   fetchUsers();
+  //   // get -> promise -> res / err
+  // }, []);
+
+  const deleteUser = (user: User) => {
+    const originalUsers = [...users];
+    setUsers(users.filter((u) => u.id !== user.id));
+
+    userService.delete(user.id).catch((error) => {
+      setError(error.message);
+      setUsers(originalUsers);
+    });
+  };
+
+  const addUser = () => {
+    const originalUsers = [...users];
+    const newUser = { id: 0, name: "Fred" };
+    setUsers([newUser, ...users]);
+
+    userService
+      .add(newUser)
+      .then(({ data: savedUser }) => setUsers([savedUser, ...users]))
+      .catch((error) => {
+        setError(error.message);
+        setUsers(originalUsers);
+      });
+  };
+
+  const updateUser = (user: User) => {
+    const originalUsers = [...users];
+    const updatedUser = { ...user, name: user.name + "!" };
+    setUsers(users.map((u) => (u.id === user.id ? updatedUser : u)));
+
+    userService.update(user.id, updatedUser).catch((error) => {
+      setError(error.message);
+      setUsers(originalUsers);
+    });
+  };
+
   return (
     <>
-      <div>
-        <div className="mb-5">
-          <ExpenseForm
-            onSubmit={(expense) =>
-              setExpenses([
-                ...expenses,
-                { ...expense, id: expenses.length + 1 },
-              ])
-            }
-          ></ExpenseForm>
-        </div>
-
-        <div className="mb-3">
-          <ExpenseFilter
-            onSelectCategory={(category) => setSelectedCategory(category)}
-          ></ExpenseFilter>
-        </div>
-        <ExpenseList
-          expenses={visibleExpenses}
-          onDelete={(id) => setExpenses(expenses.filter((e) => e.id != id))}
-        />
-      </div>
+      {error && <p className="text-danger">{error}</p>}
+      {isLoading && <div className="spinner-border"></div>}
+      <button className="btn btn-primary mb-3" onClick={addUser}>
+        Add
+      </button>
+      <ul className="list-group">
+        {users.map((user) => (
+          <li
+            className="list-group-item d-flex justify-content-between"
+            key={user.id}
+          >
+            {user.name}
+            <div>
+              <button
+                className="btn btn-outline-secondary mx-1"
+                onClick={() => updateUser(user)}
+              >
+                Edit
+              </button>
+              <button
+                className="btn btn-outline-danger"
+                onClick={() => deleteUser(user)}
+              >
+                Delete
+              </button>
+            </div>
+          </li>
+        ))}
+      </ul>
     </>
   );
 }
